@@ -3,9 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^4.11.3",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "react-scripts": "0.9.5"
+    "react-scripts": "0.9.5",
+    "react-webcam": "^5.2.2"
   },
   "devDependencies": {},
   "scripts": {

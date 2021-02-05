@@ -1,7 +1,6 @@
-import React, { Component } from 'react';
-import './App.css';
-import Webcam from "react-webcam";
-import { Grid, Icon, Fab, GridListTile, GridList } from '@material-ui/core';
+const { Grid, Icon, Fab, GridListTile, GridList } = window[
+  "material-ui"
+];
 
 const styles = {
   underlay: {
@@ -72,7 +71,7 @@ class WebcamCapture extends React.Component {
               ref={this.setRef}
               screenshotFormat="image/jpeg"
               videoConstraints={videoConstraints}
-               onUserMediaError={() => window.alert('cant access your camera')}
+              // onUserMediaError={() => window.alert('cant access your camera')}
             />
             <div style={styles.button}>
               <Fab
@@ -111,4 +110,4 @@ class WebcamCapture extends React.Component {
   }
 }
 
-export default WebcamCapture;
+ReactDOM.render(<WebcamCapture />, document.getElementById("root"));

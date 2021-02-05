@@ -43,3 +43,4 @@ RUN npm install --save react-dom@16.14.0
 RUN npm install --save react-test-renderer
 RUN npm install --save node-fetch fetch-json
 RUN npm install --save @material-ui/icons
+RUN npm install --save react-webcam
