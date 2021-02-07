@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import Webcam from "react-webcam";
 import { Grid, Icon, Fab, GridListTile, GridList } from '@material-ui/core';
+import * as faceapi from 'face-api.js/dist/face-api.js';
 
 const styles = {
   underlay: {
@@ -17,6 +18,14 @@ const styles = {
   button: {
     backgroundColor: "rgba(0,0,0,0)"
   }
+};
+
+
+const loadModels = async () => {
+     await Promise.all([
+    faceapi.nets.tinyFaceDetector.loadFromUri(`/js/lib/models`)
+    ]);
+    console.log("load_modules")
 };
 
 class WebcamCapture extends React.Component {
@@ -45,7 +54,11 @@ class WebcamCapture extends React.Component {
   
   componentDidMount(){
     this.switchCamera()
+    loadModels();
   }
+
+
+  
 
   render() {
     const videoConstraints = {
@@ -110,5 +123,23 @@ class WebcamCapture extends React.Component {
     );
   }
 }
-
+/*
+video.addEventListener("play", () => {
+  const canvas = faceapi.createCanvasFromMedia(video);
+  document.body.append(canvas);
+  const displaySize = { width: video.width, height: video.height };
+  faceapi.matchDimensions(canvas, displaySize);
+  setInterval(async () => {
+    const detections = await faceapi
+      .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+      .withFaceLandmarks()
+      .withFaceExpressions();
+    const resizedDetections = faceapi.resizeResults(detections, displaySize);
+    canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+    faceapi.draw.drawDetections(canvas, resizedDetections);
+    faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+    faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
+  }, 100);
+});
+*/
 export default WebcamCapture;

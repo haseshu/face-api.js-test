@@ -44,3 +44,4 @@ RUN npm install --save react-test-renderer
 RUN npm install --save node-fetch fetch-json
 RUN npm install --save @material-ui/icons
 RUN npm install --save react-webcam
+RUN npm install --save face-api.js
