@@ -44,6 +44,8 @@ class WebcamCapture extends React.Component {
   capture = () => {
     const imgSrc = this.webcam.getScreenshot();
     const imgList = this.state.imgList;
+    this.detection(imgSrc);
+
     this.setState({ imgList: imgList.concat([imgSrc]) });
   }
 
@@ -54,16 +56,34 @@ class WebcamCapture extends React.Component {
   
   componentDidMount(){
     this.switchCamera()
-    loadModels();
+    loadModels()
+  }
+//ここを直す
+//video用ではなく、画像用にする。
+//faceapi.detectAllFacesを使う
+  detection(video) {
+    console.log("識別開始")
+    return new Promise((resolve, reject) => {
+      const params = { maxNumScales: 10, scaleFactor: 0.709, scoreThresholds: [0.6, 0.7, 0.7], minFaceSize: 20 }
+      faceapi.mtcnn(video, params)
+      .then(result => resolve(result))
+      .catch(error => reject(error))
+    })
+  }
+  
+  resize(descriptions, width, height) {
+    return descriptions.map(m => m.faceDetection.forSize(width, height))
   }
 
-
-  
+  draw(descriptions, canvas) {
+    descriptions.map(f => faceapi.drawDetection(canvas, f, { withScore: true }))
+  }
 
   render() {
     const videoConstraints = {
       facingMode: this.state.isFacingModeUser ? "user" : "environment"
     };
+
     return (
       <Grid container justify="flex-start" alignItems="flex-start">
         <Grid item xs={12}>
@@ -142,4 +162,7 @@ video.addEventListener("play", () => {
   }, 100);
 });
 */
+
+
+
 export default WebcamCapture;
