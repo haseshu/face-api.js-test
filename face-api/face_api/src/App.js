@@ -20,12 +20,11 @@ const styles = {
   }
 };
 
-
+//start_load_modulesするけどend_load_modulesしない。
 const loadModels = async () => {
-     await Promise.all([
-    faceapi.nets.tinyFaceDetector.loadFromUri(`/js/lib/models`)
-    ]);
-    console.log("load_modules")
+  console.log("start_load_modules")
+    await faceapi.nets.tinyFaceDetector.loadFromUri(`/models`)
+    console.log("end_load_modules")
 };
 
 class WebcamCapture extends React.Component {
@@ -40,13 +39,32 @@ class WebcamCapture extends React.Component {
   setRef = webcam => {
     this.webcam = webcam;
   }
+  resize(descriptions, width, height) {
+    return descriptions.map(m => m.faceDetection.forSize(width, height))
+  }
+  draw(descriptions, canvas) {
+    descriptions.map(f => faceapi.drawDetection(canvas, f, { withScore: true }))
+  }
 
   capture = () => {
     const imgSrc = this.webcam.getScreenshot();
     const imgList = this.state.imgList;
-    this.detection(imgSrc);
+    let canvas;
+    this.detection(imgSrc)
+    .then((result) => {
+      // canvasサイズをvideo（streamではなくhtml要素の方）に合わせる
+      canvas.width = imgSrc.clientWidth
+      canvas.height = imgSrc.clientHeight
+      // 映像をcanvasに描画
+      canvas.getContext('2d').drawImage(imgSrc, 0, 0, canvas.width, canvas.height)
+      // 検出結果をリサイズ
+      const resized = this.resize(result, canvas.width, canvas.height)
+      // 検出結果をcanvasに描画
+      this.draw(resized, canvas)
+    })
 
     this.setState({ imgList: imgList.concat([imgSrc]) });
+    this.setState({ imgList: imgList.concat([canvas]) });
   }
 
   switchCamera = () => {
@@ -55,8 +73,10 @@ class WebcamCapture extends React.Component {
   }
   
   componentDidMount(){
+    console.log("start did mount")
     this.switchCamera()
     loadModels()
+    
   }
 //ここを直す
 //video用ではなく、画像用にする。
