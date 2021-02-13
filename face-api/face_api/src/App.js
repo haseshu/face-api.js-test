@@ -23,7 +23,7 @@ const styles = {
 //start_load_modulesするけどend_load_modulesしない。
 const loadModels = async () => {
   console.log("start_load_modules")
-    await faceapi.nets.tinyFaceDetector.loadFromUri(`/models`)
+    await faceapi.nets.tinyFaceDetector.load('/models')
     console.log("end_load_modules")
 };
 
