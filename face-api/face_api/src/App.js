@@ -49,10 +49,22 @@ class WebcamCapture extends React.Component {
   capture = () => {
     const imgSrc = this.webcam.getScreenshot();
     const imgList = this.state.imgList;
-    let canvas;
-    this.detection(imgSrc)
+    let canvas = document.createElement('canvas');
+    console.log("imgSrc is"+imgSrc);
+
+    canvas.width = imgSrc.clientWidth;
+    canvas.height = imgSrc.clientHeight;
+    canvas.getContext('2d').drawImage(imgSrc, 0, 0, canvas.width ,canvas.height);
+
+//この辺を直す
+//faceapiは画像をbase64にする必要があるみたい。
+
+    canvas.toDataURL("image/jpeg");
+    //this.detection(imgSrc)
+    this.detection(canvas.toDataURL("image/jpeg"))
     .then((result) => {
       // canvasサイズをvideo（streamではなくhtml要素の方）に合わせる
+      console.log("result is"+result)
       canvas.width = imgSrc.clientWidth
       canvas.height = imgSrc.clientHeight
       // 映像をcanvasに描画
@@ -62,6 +74,11 @@ class WebcamCapture extends React.Component {
       // 検出結果をcanvasに描画
       this.draw(resized, canvas)
     })
+    .catch((error) =>{
+      console.log("have error "+ error)
+
+    }
+    )
 
     this.setState({ imgList: imgList.concat([imgSrc]) });
     this.setState({ imgList: imgList.concat([canvas]) });
@@ -85,9 +102,13 @@ class WebcamCapture extends React.Component {
     console.log("識別開始")
     return new Promise((resolve, reject) => {
       const params = { maxNumScales: 10, scaleFactor: 0.709, scoreThresholds: [0.6, 0.7, 0.7], minFaceSize: 20 }
-      faceapi.mtcnn(video, params)
+      console.log("start tinyFaceDetector")
+      
+      //faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+      faceapi.tinyFaceDetector(video, params)
       .then(result => resolve(result))
       .catch(error => reject(error))
+      console.log("end tinyFaceDetector")
     })
   }
   
