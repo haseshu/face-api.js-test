@@ -46,33 +46,41 @@ class WebcamCapture extends React.Component {
     descriptions.map(f => faceapi.drawDetection(canvas, f, { withScore: true }))
   }
 
+  Base64ToImage(base64img) {
+    var img = new Image();
+    img.src = base64img;
+    return img;
+}
+
+
   capture = () => {
     const imgSrc = this.webcam.getScreenshot();
     const imgList = this.state.imgList;
     let canvas = document.createElement('canvas');
     console.log("imgSrc is"+imgSrc);
+    var image_not_base64 = this.Base64ToImage(imgSrc);
 
-    canvas.width = imgSrc.clientWidth;
-    canvas.height = imgSrc.clientHeight;
-    canvas.getContext('2d').drawImage(imgSrc, 0, 0, canvas.width ,canvas.height);
+    canvas.width = image_not_base64.clientWidth;
+    canvas.height = image_not_base64.clientHeight;
+    canvas.getContext('2d').drawImage(image_not_base64, 0, 0, canvas.width ,canvas.height);
 
 //この辺を直す
 //faceapiは画像をbase64にする必要があるみたい。
 
     canvas.toDataURL("image/jpeg");
     //this.detection(imgSrc)
-    this.detection(canvas.toDataURL("image/jpeg"))
+    this.detection(image_not_base64)
     .then((result) => {
       // canvasサイズをvideo（streamではなくhtml要素の方）に合わせる
       console.log("result is"+result)
-      canvas.width = imgSrc.clientWidth
-      canvas.height = imgSrc.clientHeight
+      canvas.width = image_not_base64.clientWidth
+      canvas.height = image_not_base64.clientHeight
       // 映像をcanvasに描画
-      canvas.getContext('2d').drawImage(imgSrc, 0, 0, canvas.width, canvas.height)
+      canvas.getContext('2d').drawImage(image_not_base64, 0, 0, canvas.width, canvas.height)
       // 検出結果をリサイズ
-      const resized = this.resize(result, canvas.width, canvas.height)
+      //const resized = this.resize(result, canvas.width, canvas.height)
       // 検出結果をcanvasに描画
-      this.draw(resized, canvas)
+      this.draw(result, canvas)
     })
     .catch((error) =>{
       console.log("have error "+ error)
@@ -95,9 +103,6 @@ class WebcamCapture extends React.Component {
     loadModels()
     
   }
-//ここを直す
-//video用ではなく、画像用にする。
-//faceapi.detectAllFacesを使う
   detection(video) {
     console.log("識別開始")
     return new Promise((resolve, reject) => {
@@ -111,13 +116,18 @@ class WebcamCapture extends React.Component {
       console.log("end tinyFaceDetector")
     })
   }
-  
+  /*
   resize(descriptions, width, height) {
     return descriptions.map(m => m.faceDetection.forSize(width, height))
   }
+  */
 
   draw(descriptions, canvas) {
-    descriptions.map(f => faceapi.drawDetection(canvas, f, { withScore: true }))
+    //ここを直す
+    //have error TypeError: faceapi.drawDetection is not a function
+    descriptions.map(f => {
+      return faceapi.drawDetection(canvas, f, { withScore: true })
+    })
   }
 
   render() {
