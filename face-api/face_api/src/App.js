@@ -43,13 +43,30 @@ class WebcamCapture extends React.Component {
     return descriptions.map(m => m.faceDetection.forSize(width, height))
   }
   draw(descriptions, canvas) {
-    descriptions.map(f => faceapi.drawDetection(canvas, f, { withScore: true }))
+    console.log("drawDetections")
+    return faceapi.draw.drawDetections(canvas, descriptions.map(res => res.faceDetection), { withScore: true })
+    //descriptions.map(f => faceapi.drawDetection(canvas, f, { withScore: true }))
   }
 
   Base64ToImage(base64img) {
     var img = new Image();
     img.src = base64img;
+    console.log("base64img.width "+base64img.width);
+    console.log("img.width "+img.width);
     return img;
+}
+
+  ImageToBase64(img, mime_type) {
+  // New Canvas
+  console.log("start ImageToBase64");
+  var canvas = document.createElement('canvas');
+  canvas.width  = img.width;
+  canvas.height = img.height;
+  // Draw Image
+  var ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0);
+  // To Base64
+  return canvas.toDataURL(mime_type);
 }
 
 
@@ -58,7 +75,12 @@ class WebcamCapture extends React.Component {
     const imgList = this.state.imgList;
     let canvas = document.createElement('canvas');
     console.log("imgSrc is"+imgSrc);
+    //ここからうまくいかない
     var image_not_base64 = this.Base64ToImage(imgSrc);
+    var image_base64;
+    console.log("image_not_base64 is"+image_not_base64);
+    console.log("image_not_base64.clientWidth"+imgSrc.width);
+    console.log("image_not_base64.clientHeight"+imgSrc.height);
 
     canvas.width = image_not_base64.clientWidth;
     canvas.height = image_not_base64.clientHeight;
@@ -67,20 +89,26 @@ class WebcamCapture extends React.Component {
 //この辺を直す
 //faceapiは画像をbase64にする必要があるみたい。
 
-    canvas.toDataURL("image/jpeg");
+    //canvas.toDataURL("image/jpeg");
     //this.detection(imgSrc)
     this.detection(image_not_base64)
     .then((result) => {
       // canvasサイズをvideo（streamではなくhtml要素の方）に合わせる
-      console.log("result is"+result)
+      console.log("result is"+result);
+
       canvas.width = image_not_base64.clientWidth
       canvas.height = image_not_base64.clientHeight
       // 映像をcanvasに描画
+      console.log("getContext");
       canvas.getContext('2d').drawImage(image_not_base64, 0, 0, canvas.width, canvas.height)
       // 検出結果をリサイズ
       //const resized = this.resize(result, canvas.width, canvas.height)
       // 検出結果をcanvasに描画
-      this.draw(result, canvas)
+      console.log("draw");
+
+      //this.draw(result, canvas)
+      console.log("end draw");
+      image_base64 = this.ImageToBase64(canvas,"image/jpeg");
     })
     .catch((error) =>{
       console.log("have error "+ error)
@@ -88,8 +116,8 @@ class WebcamCapture extends React.Component {
     }
     )
 
-    this.setState({ imgList: imgList.concat([imgSrc]) });
-    this.setState({ imgList: imgList.concat([canvas]) });
+    //this.setState({ imgList: imgList.concat([imgSrc]) });
+    this.setState({ imgList: imgList.concat([image_base64]) });
   }
 
   switchCamera = () => {
@@ -125,9 +153,17 @@ class WebcamCapture extends React.Component {
   draw(descriptions, canvas) {
     //ここを直す
     //have error TypeError: faceapi.drawDetection is not a function
+    /*
+faceapi.draw.drawDetections('overlay', mtcnnResults.map(res => res.faceDetection), { withScore: false })
+faceapi.draw.drawFaceLandmarks('overlay', mtcnnResults.map(res => res.faceLandmarks), { lineWidth: 4, color: 'red' })
+    */
+   console.log("draw-2")
+    faceapi.draw.drawDetections(canvas, descriptions, { withScore: true })
+    /*
     descriptions.map(f => {
-      return faceapi.drawDetection(canvas, f, { withScore: true })
+      //return faceapi.drawDetection(canvas, f, { withScore: true })
     })
+    */
   }
 
   render() {
